@@ -32,7 +32,7 @@ static int compress(const char* in_fname, const char* out_fname) {
 
     // compression params
     blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
-    cparams.nthreads = 16; // Btune may lower this
+    cparams.nthreads = 1; // Btune may lower this
     cparams.typesize = schunk_in->typesize;
 
     // btune
@@ -71,31 +71,39 @@ static int compress(const char* in_fname, const char* out_fname) {
     }
 
     // Statistics
-    blosc_timestamp_t t0;
-    blosc_set_timestamp(&t0);
+    blosc_timestamp_t c0;
+    blosc_timestamp_t c1;
+    blosc_timestamp_t d0;
+    blosc_timestamp_t d1;
+    double ctotal = 0.0;
+    double dtotal = 0.0;
 
     // Compress
     int chunksize = schunk_in->chunksize;
     void *data = malloc(chunksize);
     int nchunks = schunk_in->nchunks;
     for (int nchunk = 0; nchunk < nchunks; nchunk++) {
+        blosc_set_timestamp(&d0);
         int size = blosc2_schunk_decompress_chunk(schunk_in, nchunk, data, chunksize);
+        blosc_set_timestamp(&d1);
+        blosc_set_timestamp(&c0);
         if (blosc2_schunk_append_buffer(schunk_out, data, size) < 0) {
             fprintf(stderr, "Error in appending data to destination file");
             return 1;
         }
+        blosc_set_timestamp(&c1);
+        dtotal += blosc_elapsed_secs(d0, d1);
+        ctotal += blosc_elapsed_secs(c0, c1);
     }
 
     // Statistics
-    blosc_timestamp_t t1;
-    blosc_set_timestamp(&t1);
     int64_t nbytes = schunk_out->nbytes;
     int64_t cbytes = schunk_out->cbytes;
-    double ttotal = blosc_elapsed_secs(t0, t1);
     printf("Compression ratio: %.1f MB -> %.1f MB (%.1fx)\n",
             (float)nbytes / MB, (float)cbytes / MB, (1. * (float)nbytes) / (float)cbytes);
+    printf("Decompression time: %.3g s, %.1f MB/s\n", dtotal, (float)nbytes / (dtotal * MB));
     printf("Compression time: %.3g s, %.1f MB/s\n",
-            ttotal, (float)nbytes / (ttotal * MB));
+            ctotal, (float)nbytes / (ctotal * MB));
 
     // Free resources
     blosc2_schunk_free(schunk_in);

@@ -43,3 +43,7 @@ else()
 endif()
 
 add_subdirectory(src)
+
+# Build example
+add_executable(blosc2_btune_example examples/btune_example.c)
+target_link_libraries(blosc2_btune_example PRIVATE blosc2 blosc2_btune m)

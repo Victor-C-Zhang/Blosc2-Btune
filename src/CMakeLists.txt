@@ -23,6 +23,7 @@ else()
     target_link_directories(blosc2_btune PUBLIC ${BLOSC2_SRC_DIR}/build/blosc/Release)
     set(BLOSC2_LIB "libblosc2")
 endif()
+target_include_directories(blosc2_btune PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${BLOSC2_INCLUDE_DIR} ${TENSORFLOW_SRC_DIR})
 
 
 if (BUILD_STATIC_TFLITE)
