@@ -12,6 +12,8 @@
 cmake_minimum_required(VERSION 3.20)
 project(blosc2_btune LANGUAGES C CXX)
 set (CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
+set(CMAKE_C_FLAGS_RELEASE "-O3 ${CMAKE_C_FLAGS_RELEASE}")
 
 # Only linking tensorflow statically is officially supported at this time
 option(BUILD_STATIC_TFLITE "Link tflite statically" ON)
@@ -47,3 +49,7 @@ add_subdirectory(src)
 # Build example
 add_executable(blosc2_btune_example examples/btune_example.c)
 target_link_libraries(blosc2_btune_example PRIVATE blosc2 blosc2_btune m)
+
+# Build example
+add_executable(btune_roundtrip examples/btune_roundtrip.c)
+target_link_libraries(btune_roundtrip PRIVATE blosc2 blosc2_btune m)

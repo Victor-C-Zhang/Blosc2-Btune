@@ -14,7 +14,7 @@ include_directories(
     ${TENSORFLOW_SRC_DIR}
 )
 
-add_library(blosc2_btune MODULE btune.c btune_model.cpp json.c entropy_probe.c)
+add_library(blosc2_btune btune.c btune_model.cpp json.c entropy_probe.c)
 
 if(UNIX)
     target_link_directories(blosc2_btune PUBLIC ${BLOSC2_SRC_DIR}/build/blosc)
